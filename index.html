@@ -405,9 +405,9 @@
   </main>
 
   <script>
-    const TOTAL_QUESTIONS = 10;
-    const PASS_SCORE = 9;
-    const FEEDBACK_DELAY = 1000;
+    const TOTAL_QUESTIONS = 5;
+    const PASS_SCORE = 4;
+    const FEEDBACK_DELAY = 1400;
     const rewardImages = [
       "images/pic-1.jpg",
       "images/pic-2.jpg",
@@ -673,7 +673,7 @@
         rewardImageEl.src = pickRandom(rewardImages);
         rewardImageEl.classList.add("show");
       } else {
-        resultMessageEl.textContent = "Próbáld újra!";
+        resultMessageEl.textContent = "Még gyakorolj egy kicsit, menni fog!";
         rewardImageEl.removeAttribute("src");
         rewardImageEl.classList.remove("show");
       }
