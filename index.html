@@ -123,19 +123,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 24px;
       width: 100%;
       min-height: 88px;
-      font-size: clamp(1.6rem, 4vw, 2.4rem);
-      font-weight: 900;
-    }
-
-    .side-value {
-      min-width: 80px;
-      padding: 10px 12px;
-      border-radius: 18px;
-      background: #f4fff1;
-      box-shadow: inset 0 -4px 0 rgba(22, 66, 41, 0.08);
     }
 
     .croc {
@@ -347,15 +336,6 @@
         width: 100%;
       }
 
-      .croc-row {
-        gap: 12px;
-      }
-
-      .side-value {
-        min-width: 64px;
-        font-size: 1.2rem;
-      }
-
       .answers.three,
       .answers.two {
         grid-template-columns: 1fr;
@@ -379,9 +359,7 @@
 
     <section class="playfield">
       <div class="croc-row" aria-hidden="true">
-        <div class="side-value" id="leftPreview">?</div>
         <div class="croc look-center" id="croc">🐊</div>
-        <div class="side-value" id="rightPreview">?</div>
       </div>
 
       <section class="question-card" id="questionCard">
@@ -467,8 +445,6 @@
 
     const gameEl = document.getElementById("game");
     const scoreEl = document.getElementById("score");
-    const leftPreviewEl = document.getElementById("leftPreview");
-    const rightPreviewEl = document.getElementById("rightPreview");
     const crocEl = document.getElementById("croc");
     const questionLabelEl = document.getElementById("questionLabel");
     const questionTextEl = document.getElementById("questionText");
@@ -528,8 +504,6 @@
         mode: "compare",
         label: "Melyik jel jó?",
         text: `${left} ? ${right}`,
-        leftPreview: left,
-        rightPreview: right,
         correctAnswer: compareValues(left, right),
         reaction: compareValues(left, right)
       };
@@ -542,8 +516,6 @@
         mode: "compare",
         label: "Számolj és válassz jelet!",
         text: `${expression.text} ? ${number}`,
-        leftPreview: expression.value,
-        rightPreview: number,
         correctAnswer: compareValues(expression.value, number),
         reaction: compareValues(expression.value, number)
       };
@@ -556,8 +528,6 @@
         mode: "compare",
         label: "Melyik oldal nagyobb?",
         text: `${leftExpression.text} ? ${rightExpression.text}`,
-        leftPreview: leftExpression.value,
-        rightPreview: rightExpression.value,
         correctAnswer: compareValues(leftExpression.value, rightExpression.value),
         reaction: compareValues(leftExpression.value, rightExpression.value)
       };
@@ -572,8 +542,6 @@
         mode: "truefalse",
         label: "Igaz vagy hamis?",
         text: `${leftExpression.text} ${sign} ${rightValue}`,
-        leftPreview: leftExpression.value,
-        rightPreview: rightValue,
         correctAnswer: isTrue ? "Igaz" : "Hamis",
         reaction: compareValues(leftExpression.value, rightValue)
       };
@@ -593,8 +561,6 @@
         mode: "truefalse",
         label: "Igaz vagy hamis?",
         text: `${a} ${sign1} ${b} ${sign2} ${c}`,
-        leftPreview: a,
-        rightPreview: c,
         correctAnswer: isTrue ? "Igaz" : "Hamis",
         reaction: compareValues(a, c)
       };
@@ -635,8 +601,6 @@
       feedbackEl.className = "feedback";
       questionLabelEl.textContent = currentQuestion.label;
       questionTextEl.textContent = currentQuestion.text;
-      leftPreviewEl.textContent = currentQuestion.leftPreview;
-      rightPreviewEl.textContent = currentQuestion.rightPreview;
       setCrocDirection("=");
       answersEl.innerHTML = "";
       resultEl.classList.remove("show");
@@ -680,8 +644,6 @@
 
       questionLabelEl.textContent = "Kész";
       questionTextEl.textContent = "Nyomd meg az Új játék gombot!";
-      leftPreviewEl.textContent = "★";
-      rightPreviewEl.textContent = "★";
       setCrocDirection(score >= PASS_SCORE ? "<" : "=");
       feedbackEl.textContent = "";
       feedbackEl.className = "feedback";
