@@ -476,20 +476,20 @@
       return "=";
     }
 
-    // Keeps generated expressions simple and within 0..10.
+    // Keeps generated expressions simple and within 0..20.
     function createExpression() {
       const useAddition = Math.random() < 0.65;
 
       if (useAddition) {
-        const a = randInt(0, 10);
-        const b = randInt(0, 10 - a);
+        const a = randInt(0, 20);
+        const b = randInt(0, 20 - a);
         return {
           text: `${a}+${b}`,
           value: a + b
         };
       }
 
-      const a = randInt(0, 10);
+      const a = randInt(0, 20);
       const b = randInt(0, a);
       return {
         text: `${a}-${b}`,
@@ -498,8 +498,8 @@
     }
 
     function createComparisonQuestion() {
-      const left = randInt(0, 10);
-      const right = randInt(0, 10);
+      const left = randInt(0, 20);
+      const right = randInt(0, 20);
       return {
         mode: "compare",
         label: "Melyik jel jó?",
@@ -511,7 +511,7 @@
 
     function createExpressionVsNumberQuestion() {
       const expression = createExpression();
-      const number = randInt(0, 10);
+      const number = randInt(0, 20);
       return {
         mode: "compare",
         label: "Számolj és válassz jelet!",
@@ -535,7 +535,7 @@
 
     function createTrueFalseQuestion() {
       const leftExpression = createExpression();
-      const rightValue = randInt(0, 10);
+      const rightValue = randInt(0, 20);
       const sign = pickRandom(["<", ">", "="]);
       const isTrue = compareValues(leftExpression.value, rightValue) === sign;
       return {
@@ -548,9 +548,9 @@
     }
 
     function createChainQuestion() {
-      const a = randInt(0, 10);
-      const b = randInt(0, 10);
-      const c = randInt(0, 10);
+      const a = randInt(0, 20);
+      const b = randInt(0, 20);
+      const c = randInt(0, 20);
       const sign1 = pickRandom(["<", ">"]);
       const sign2 = pickRandom(["<", ">"]);
       const isTrue =

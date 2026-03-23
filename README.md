@@ -45,7 +45,7 @@ The game mixes the following kinds of questions:
 
 ## Rules
 
-- numbers stay between 0 and 10
+- numbers stay between 0 and 20
 - only `+` and `-` operations are used
 - expressions never produce negative results
 - questions are intentionally simple and easy to read
