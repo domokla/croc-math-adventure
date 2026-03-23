@@ -289,10 +289,15 @@
     }
 
     .restart-btn {
+      display: none;
       min-height: 70px;
       margin-top: 18px;
       padding: 14px 26px;
       font-size: 1.4rem;
+    }
+
+    .restart-btn.show {
+      display: inline-block;
     }
 
     .sr-only {
@@ -629,6 +634,7 @@
       answersEl.innerHTML = "";
       answersEl.className = "answers";
       resultEl.classList.add("show");
+      restartBtn.classList.add("show");
       resultTitleEl.textContent = "Vége a játéknak!";
       resultScoreEl.textContent = `${score} / ${TOTAL_QUESTIONS}`;
 
@@ -690,6 +696,7 @@
     function startGame() {
       score = 0;
       questionIndex = 0;
+      restartBtn.classList.remove("show");
       rewardImageEl.removeAttribute("src");
       rewardImageEl.classList.remove("show");
       updateScore();
