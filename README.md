@@ -27,6 +27,7 @@ The goal is to help children around ages 6-8 practice basic addition, subtractio
 - the player gets immediate feedback after each answer
 - the crocodile emoji turns toward the bigger side after the answer
 - the next question appears after a short delay
+- some rounds ask the player to sort 5 numbers into the correct order
 
 ## Question Types
 
@@ -42,6 +43,8 @@ The game mixes the following kinds of questions:
    - example: `2+4 > 3`
 5. Chain comparison
    - example: `3 < 5 < 8`
+6. Sorting numbers
+   - example: put `3, 11, 7, 19, 1` in ascending or descending order
 
 ## Rules
 

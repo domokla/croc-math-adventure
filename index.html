@@ -199,8 +199,13 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
+    .answers.five {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .answer-btn,
-    .restart-btn {
+    .restart-btn,
+    .secondary-btn {
       border: none;
       border-radius: 22px;
       cursor: pointer;
@@ -219,13 +224,15 @@
     }
 
     .answer-btn:hover,
-    .restart-btn:hover {
+    .restart-btn:hover,
+    .secondary-btn:hover {
       transform: translateY(-2px) scale(1.01);
       filter: brightness(1.03);
     }
 
     .answer-btn:active,
-    .restart-btn:active {
+    .restart-btn:active,
+    .secondary-btn:active {
       transform: translateY(3px);
       box-shadow: 0 4px 0 rgba(200, 135, 0, 0.25);
     }
@@ -244,6 +251,72 @@
     .answer-btn.wrong {
       background: linear-gradient(180deg, #ffe1e1, #ff9f9f);
       box-shadow: 0 8px 0 rgba(201, 42, 42, 0.2);
+    }
+
+    .sort-area {
+      display: none;
+      width: 100%;
+      background: linear-gradient(180deg, #ffffff, #f5ffef);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: inset 0 -5px 0 rgba(22, 66, 41, 0.08);
+    }
+
+    .sort-area.show {
+      display: grid;
+      gap: 14px;
+    }
+
+    .sort-instruction {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .sort-slots {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .sort-slot {
+      min-height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 18px;
+      background: #eef9e8;
+      border: 3px dashed rgba(22, 66, 41, 0.18);
+      font-size: 1.5rem;
+      font-weight: 900;
+    }
+
+    .sort-slot.filled {
+      background: #fff7d6;
+      border-style: solid;
+    }
+
+    .sort-slot.correct {
+      background: #d6ffd6;
+      border-color: rgba(46, 160, 67, 0.3);
+    }
+
+    .sort-slot.wrong {
+      background: #ffe1e1;
+      border-color: rgba(201, 42, 42, 0.28);
+    }
+
+    .sort-actions {
+      display: flex;
+      justify-content: center;
+    }
+
+    .secondary-btn {
+      min-height: 58px;
+      padding: 12px 22px;
+      font-size: 1.1rem;
+      background: linear-gradient(180deg, #e6f8ff, #bde8ff);
+      box-shadow: 0 8px 0 rgba(50, 119, 173, 0.18);
     }
 
     .result {
@@ -342,12 +415,17 @@
       }
 
       .answers.three,
-      .answers.two {
+      .answers.two,
+      .answers.five {
         grid-template-columns: 1fr;
       }
 
       .answer-btn {
         min-height: 74px;
+      }
+
+      .sort-slots {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
     }
   </style>
@@ -370,6 +448,14 @@
       <section class="question-card" id="questionCard">
         <p class="question-label" id="questionLabel">Kérdés</p>
         <p class="question-text" id="questionText">Készen állsz?</p>
+      </section>
+
+      <section class="sort-area" id="sortArea">
+        <p class="sort-instruction" id="sortInstruction">Tedd sorrendbe a számokat!</p>
+        <div class="sort-slots" id="sortSlots" aria-label="Kiválasztott sorrend"></div>
+        <div class="sort-actions">
+          <button class="secondary-btn" id="clearSortBtn" type="button">Törlés</button>
+        </div>
       </section>
 
       <p class="feedback" id="feedback" aria-live="polite"></p>
@@ -453,6 +539,10 @@
     const crocEl = document.getElementById("croc");
     const questionLabelEl = document.getElementById("questionLabel");
     const questionTextEl = document.getElementById("questionText");
+    const sortAreaEl = document.getElementById("sortArea");
+    const sortInstructionEl = document.getElementById("sortInstruction");
+    const sortSlotsEl = document.getElementById("sortSlots");
+    const clearSortBtn = document.getElementById("clearSortBtn");
     const feedbackEl = document.getElementById("feedback");
     const answersEl = document.getElementById("answers");
     const resultEl = document.getElementById("result");
@@ -466,6 +556,7 @@
     let questionIndex = 0;
     let currentQuestion = null;
     let isLocked = false;
+    let selectedSortValues = [];
 
     function randInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -473,6 +564,23 @@
 
     function pickRandom(array) {
       return array[randInt(0, array.length - 1)];
+    }
+
+    function shuffleArray(array) {
+      const copy = [...array];
+      for (let index = copy.length - 1; index > 0; index -= 1) {
+        const swapIndex = randInt(0, index);
+        [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+      }
+      return copy;
+    }
+
+    function createUniqueNumbers(count, min, max) {
+      const numbers = new Set();
+      while (numbers.size < count) {
+        numbers.add(randInt(min, max));
+      }
+      return [...numbers];
     }
 
     function compareValues(left, right) {
@@ -571,12 +679,33 @@
       };
     }
 
+    function createSortQuestion() {
+      const numbers = createUniqueNumbers(5, 0, 20);
+      const ascending = Math.random() < 0.5;
+      const correctSequence = [...numbers].sort((left, right) => (
+        ascending ? left - right : right - left
+      ));
+
+      return {
+        mode: "sort",
+        label: "Tedd sorba!",
+        text: ascending ? "Növekvő sorrend" : "Csökkenő sorrend",
+        instruction: ascending
+          ? "Koppints a számokra a kisebbtől a nagyobbig!"
+          : "Koppints a számokra a nagyobbtól a kisebbig!",
+        choices: shuffleArray(numbers),
+        correctSequence,
+        reaction: ascending ? "<" : ">"
+      };
+    }
+
     const questionFactories = [
       createComparisonQuestion,
       createExpressionVsNumberQuestion,
       createExpressionVsExpressionQuestion,
       createTrueFalseQuestion,
-      createChainQuestion
+      createChainQuestion,
+      createSortQuestion
     ];
 
     function createAnswerButton(label) {
@@ -599,9 +728,42 @@
       }
     }
 
+    function renderSortSlots(resultState = null) {
+      sortSlotsEl.innerHTML = "";
+      for (let index = 0; index < 5; index += 1) {
+        const slot = document.createElement("div");
+        slot.className = "sort-slot";
+        if (selectedSortValues[index] !== undefined) {
+          slot.textContent = selectedSortValues[index];
+          slot.classList.add("filled");
+          if (resultState === "correct") {
+            slot.classList.add("correct");
+          } else if (resultState === "wrong") {
+            slot.classList.add("wrong");
+          }
+        } else {
+          slot.textContent = "?";
+        }
+        sortSlotsEl.appendChild(slot);
+      }
+    }
+
+    function renderSortAnswers() {
+      answersEl.className = "answers five";
+      answersEl.innerHTML = "";
+      currentQuestion.choices.forEach((value) => {
+        const button = createAnswerButton(String(value));
+        if (selectedSortValues.includes(value)) {
+          button.disabled = true;
+        }
+        answersEl.appendChild(button);
+      });
+    }
+
     function renderQuestion() {
       currentQuestion = pickRandom(questionFactories)();
       isLocked = false;
+      selectedSortValues = [];
       feedbackEl.textContent = "";
       feedbackEl.className = "feedback";
       questionLabelEl.textContent = currentQuestion.label;
@@ -609,6 +771,17 @@
       setCrocDirection("=");
       answersEl.innerHTML = "";
       resultEl.classList.remove("show");
+      sortAreaEl.classList.remove("show");
+      clearSortBtn.disabled = true;
+
+      if (currentQuestion.mode === "sort") {
+        sortAreaEl.classList.add("show");
+        clearSortBtn.disabled = false;
+        sortInstructionEl.textContent = currentQuestion.instruction;
+        renderSortSlots();
+        renderSortAnswers();
+        return;
+      }
 
       const options = currentQuestion.mode === "compare"
         ? ["<", "=", ">"]
@@ -635,6 +808,7 @@
       answersEl.className = "answers";
       resultEl.classList.add("show");
       restartBtn.classList.add("show");
+      sortAreaEl.classList.remove("show");
       resultTitleEl.textContent = "Vége a játéknak!";
       resultScoreEl.textContent = `${score} / ${TOTAL_QUESTIONS}`;
 
@@ -657,6 +831,12 @@
 
     function handleAnswer(answer, button) {
       if (isLocked) return;
+
+      if (currentQuestion.mode === "sort") {
+        handleSortSelection(Number(answer));
+        return;
+      }
+
       isLocked = true;
 
       const isCorrect = answer === currentQuestion.correctAnswer;
@@ -693,17 +873,72 @@
       }, FEEDBACK_DELAY);
     }
 
+    function finishAnsweredQuestion(isCorrect) {
+      if (isCorrect) {
+        score += 1;
+      }
+
+      updateScore();
+      setCrocDirection(currentQuestion.reaction);
+      flashGame(isCorrect);
+      feedbackEl.textContent = isCorrect ? "Ügyes vagy!" : "Ez most nem jó.";
+      feedbackEl.className = `feedback ${isCorrect ? "good" : "bad"}`;
+
+      questionIndex += 1;
+      window.setTimeout(() => {
+        if (questionIndex >= TOTAL_QUESTIONS) {
+          finishGame();
+          return;
+        }
+        renderQuestion();
+      }, FEEDBACK_DELAY);
+    }
+
+    function handleSortSelection(value) {
+      if (isLocked || selectedSortValues.includes(value)) return;
+
+      selectedSortValues.push(value);
+      renderSortSlots();
+      renderSortAnswers();
+
+      if (selectedSortValues.length < currentQuestion.correctSequence.length) {
+        return;
+      }
+
+      isLocked = true;
+      const isCorrect = selectedSortValues.every((item, index) => (
+        item === currentQuestion.correctSequence[index]
+      ));
+
+      const buttons = [...answersEl.querySelectorAll(".answer-btn")];
+      buttons.forEach((btn) => {
+        btn.disabled = true;
+      });
+
+      clearSortBtn.disabled = true;
+      renderSortSlots(isCorrect ? "correct" : "wrong");
+      finishAnsweredQuestion(isCorrect);
+    }
+
     function startGame() {
       score = 0;
       questionIndex = 0;
+      selectedSortValues = [];
       restartBtn.classList.remove("show");
       rewardImageEl.removeAttribute("src");
       rewardImageEl.classList.remove("show");
+      clearSortBtn.disabled = false;
       updateScore();
       renderQuestion();
     }
 
     restartBtn.addEventListener("click", startGame);
+    clearSortBtn.addEventListener("click", () => {
+      if (isLocked || currentQuestion?.mode !== "sort") return;
+      selectedSortValues = [];
+      renderSortSlots();
+      renderSortAnswers();
+    });
 
     startGame();
   </script>
